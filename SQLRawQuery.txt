@@ -1,0 +1,6 @@
+
+       var data= string.Join("", _dbContext.Database.SqlQuery<string>($"select count(*) as Total,status from swedenTracking  group by status FOR JSON PATH"));
+
+        var a = JsonConvert.DeserializeObject<d1[]>(data);
+
+        return Ok( a );
