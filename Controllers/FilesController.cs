@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 namespace Test.Controllers
@@ -8,7 +9,7 @@ namespace Test.Controllers
     [Route("api/[controller]/[action]")]
     public class FilesController : ControllerBase
     {
-        private readonly string filePath = @"Test.rar"; // Provide the actual path to your file
+        private readonly string filePath = @"D:\.net\Test\Hello.txt"; // Provide the actual path to your file
 
         [HttpGet("{fileName}")]
         public IActionResult GetFile(string fileName)
@@ -19,7 +20,7 @@ namespace Test.Controllers
             var contentType = "application/octet-stream";
             var fileStreamResult = new FileStreamResult(fileStream, contentType)
             {
-                FileDownloadName = fileName // Specify the name the client should use when saving the file
+                FileDownloadName = fileName+".txt" // Specify the name the client should use when saving the file
             };
 
             return fileStreamResult;
@@ -84,6 +85,38 @@ namespace Test.Controllers
 
             //return fileStreamResult;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DirectStreamFile()
+        {
+            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+            return Ok(fileStream);
+        }
+
+        [HttpGet]
+        public async Task StreamData()
+        {
+            Response.Headers.Add("Content-Type", "text/plain");
+            Response.Headers.Add("Cache-Control", "no-store");
+            Response.Headers.Add("Pragma", "no-cache");
+
+            var lines = "sfaeaefsfsdfsdfsdfsdfsdfs\nsfaeaefsfsdfsdfsdfsdfsdfs\nsfaeaefsfsdfsdfsdfsdfsdfs\n"
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                await Response.WriteAsync(line + "\n");
+                await Response.Body.FlushAsync();
+                await Task.Delay(1000);
+            }
+        }
+
+
+
+
+
+
 
 
     }
